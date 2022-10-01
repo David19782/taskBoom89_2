@@ -10,38 +10,77 @@ export default class Application extends EventEmitter {
 
   constructor() {
     super();
+    this._loading = document.getElementsByTagName('progress')[0];
+    this.data = [];
+    this._load().then((data) => {
+      this._create();
 
-    const box = document.createElement("div");
-    box.classList.add("box");
-    box.innerHTML = this._render({
-      name: "Placeholder",
-      terrain: "placeholder",
-      population: 0,
-    });
+    }).then(() => {
+      this.emit(Application.events.READY);
 
-    document.body.querySelector(".main").appendChild(box);
+    })
+    //console.log(this.data)
+  }
 
-    this.emit(Application.events.READY);
+  async _load() {
+    this._startLoading();
+    const res = await fetch("https://swapi.boom.dev/api/planets"); 
+    const first =  await res.json();
+    //console.log(first)
+    this.data.push(...first.results)
+    const pages = first.count;
+    for(let i = 2; i <= pages; i++){
+      const url = `https://swapi.boom.dev/api/planets/?pages=${i}`;
+      //console.log(url);
+      const curr = await (await fetch(url)).json();
+      this.data.push(...curr.results);
+    }
+    this._stopLoading();
+    //console.log(this.data);
+
+  }
+  _create() {
+
+    this.data.forEach(el => {
+      
+      let  box = document.createElement('div');
+      box.classList.add("box");
+      
+      console.log(box);
+      box.innerHTML = this._render({
+        name: el.name,
+        terrain: el.terrain,
+        population: el.population
+      })
+      document.getElementsByTagName("body")[0].appendChild(box);
+    })
+  }
+  _startLoading() {
+    this._loading.style.display = "inline";
+  }
+
+  _stopLoading() {
+    this._loading.style.display = 'none';
   }
 
   _render({ name, terrain, population }) {
     return `
-<article class="media">
-  <div class="media-left">
-    <figure class="image is-64x64">
-      <img src="${image}" alt="planet">
-    </figure>
-  </div>
-  <div class="media-content">
-    <div class="content">
-    <h4>${name}</h4>
-      <p>
-        <span class="tag">${terrain}</span> <span class="tag">${population}</span>
-        <br>
-      </p>
-    </div>
-  </div>
-</article>
-    `;
+      <article class="media">
+        <div class="media-left">
+          <figure class="image is-64x64">
+            <img src="${image}" alt="planet">
+          </figure>
+        </div>
+        <div class="media-content">
+          <div class="content">
+          <h4>${name}</h4>
+            <p>
+              <span class="tag">${terrain}</span> <span class="tag">${population}</span>
+              <br>
+            </p>
+          </div>
+        </div>
+      </article>
+      `;
   }
 }
