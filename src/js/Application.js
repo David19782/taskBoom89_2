@@ -28,7 +28,7 @@ export default class Application extends EventEmitter {
     const first =  await res.json();
     //console.log(first)
     this.data.push(...first.results)
-    const pages = first.count;
+    const pages = 6;
     for(let i = 2; i <= pages; i++){
       const url = `https://swapi.boom.dev/api/planets/?pages=${i}`;
       //console.log(url);
@@ -52,7 +52,7 @@ export default class Application extends EventEmitter {
         terrain: el.terrain,
         population: el.population
       })
-      document.getElementsByTagName("body")[0].appendChild(box);
+      document.getElementsByTagName("div")[0].appendChild(box);
     })
   }
   _startLoading() {
