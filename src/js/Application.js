@@ -13,8 +13,9 @@ export default class Application extends EventEmitter {
     this._loading = document.getElementsByTagName('progress')[0];
     this.data = [];
     this._load().then((data) => {
+      this.data = data;
+      this._stopLoading();
       this._create();
-
     }).then(() => {
       this.emit(Application.events.READY);
 
@@ -26,16 +27,19 @@ export default class Application extends EventEmitter {
     this._startLoading();
     const res = await fetch("https://swapi.boom.dev/api/planets"); 
     const first =  await res.json();
+    let pl = [];
     //console.log(first)
-    this.data.push(...first.results)
+    pl.push(...first.results);
     const pages = 6;
+    
     for(let i = 2; i <= pages; i++){
       const url = `https://swapi.boom.dev/api/planets/?page=${i}`;
       //console.log(url);
+
       const curr = await (await fetch(url)).json();
-      this.data.push(...curr.results);
+      pl.push(...curr.results);
     }
-    this._stopLoading();
+    return pl;
     //console.log(this.data);
 
   }
