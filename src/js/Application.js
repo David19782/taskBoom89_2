@@ -30,7 +30,7 @@ export default class Application extends EventEmitter {
     this.data.push(...first.results)
     const pages = 6;
     for(let i = 2; i <= pages; i++){
-      const url = `https://swapi.boom.dev/api/planets/?pages=${i}`;
+      const url = `https://swapi.boom.dev/api/planets/?page=${i}`;
       //console.log(url);
       const curr = await (await fetch(url)).json();
       this.data.push(...curr.results);
